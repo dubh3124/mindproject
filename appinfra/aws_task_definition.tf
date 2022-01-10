@@ -2,9 +2,7 @@ resource "aws_ecs_task_definition" "nlptaskdef" {
   family                = "taskdef-${local.full_name}"
   network_mode = "awsvpc"
   execution_role_arn = aws_iam_role.nlpapp-task-execution-role.arn
-  volume {
-    name = "my-vol"
-  }
+  task_role_arn = aws_iam_role.nlpapp-task-role.arn
   requires_compatibilities = ["FARGATE"]
   cpu = 256
   memory = 512
@@ -12,14 +10,10 @@ resource "aws_ecs_task_definition" "nlptaskdef" {
     {
       name = "nlpapp"
       essential = true
-      image = "httpd:2.4"
-      mountPoints = [{
-        containerPath = "/usr/local/apache2/htdocs"
-        sourceVolume = "my-vol"
-      }]
+      image = "166531731337.dkr.ecr.us-east-1.amazonaws.com/ecr-nlpappp-dev" #TODO: Variablize
       portMappings = [{
-        containerPort = 80
-        hostport = 80
+        containerPort = local.api_port
+        hostport = local.api_port
       }]
       logConfiguration = {
         logDriver = "awslogs",
@@ -29,17 +23,6 @@ resource "aws_ecs_task_definition" "nlptaskdef" {
           awslogs-stream-prefix = "ecs"
         }
       }
-    },
-    {
-      name = "datastore"
-      essential = false
-      image = "busybox"
-      command = ["/bin/sh -c \"while true; do echo '<html><head><title>Amazon ECS Sample App</title></head><body><div><h1>Amazon ECS Sample App</h1><h2>Congratulations! </h2><p>Your application is now running on a container in Amazon ECS.</p>' > top; /bin/date > date ; hostname -i > ipaddr; echo '</div></body></html>' > bottom; cat top date bottom ipaddr > /usr/local/apache2/htdocs/index.html ; sleep 1; done\""]
-      entryPoint = ["sh", "-c"]
-      volumesFrom = [{
-        sourceContainer = "nlpapp"
-      }]
     }
   ])
 }
-

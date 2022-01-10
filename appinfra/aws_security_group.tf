@@ -24,15 +24,15 @@ resource "aws_security_group" "egress_all" {
   }
 }
 
-#resource "aws_security_group" "ingress_api" {
-#  name        = "ingress-api"
-#  description = "Allow ingress to API"
-#  vpc_id      = aws_vpc.app_vpc.id
-#
-#  ingress {
-#    from_port   = 3000
-#    to_port     = 3000
-#    protocol    = "TCP"
-#    cidr_blocks = ["0.0.0.0/0"]
-#  }
-#}
+resource "aws_security_group" "ingress_api" {
+  name        = "ingress-nlpappbackend-${local.full_name}"
+  description = "Allow ingress to API"
+  vpc_id      = data.terraform_remote_state.nlpnetwork.outputs.vpcid
+
+  ingress {
+    from_port   = local.api_port
+    to_port     = local.api_port
+    protocol    = "TCP"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
