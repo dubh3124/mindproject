@@ -5,4 +5,4 @@ phases:
     - echo $CODEBUILD_RESOLVED_SOURCE_VERSION > CODEBUILD_RESOLVED_SOURCE_VERSION.txt
 artifacts:
   files:
-  - '**/*
+  - '**/*'

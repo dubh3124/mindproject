@@ -24,6 +24,14 @@ resource "aws_codebuild_project" "bootstrap" {
     type                        = "LINUX_CONTAINER"
   }
 
+  logs_config {
+    cloudwatch_logs {
+      status = "ENABLED"
+      group_name = aws_cloudwatch_log_group.bootstrapper.name
+      stream_name = aws_cloudwatch_log_stream.bootstrapper.name
+    }
+  }
+
   source {
     buildspec           = templatefile("bootstrapper_buildspec.yml", {})
     location            = var.repo_location
@@ -52,23 +60,38 @@ resource "aws_iam_role_policy" "bootstrapper-s3access" {
   role   = aws_iam_role.bootstrapper.name
   policy = jsonencode({
     "Version": "2012-10-17",
-    "Statement": [{
-      "Sid": "pipelinebucketaccess",
-      "Effect": "Allow",
-      "Action": [
-        "s3:*",
-      ],
-      "Resource": [
-        aws_s3_bucket.nlppipeline.arn
-      ]
-    }]
+    "Statement": [
+      {
+        "Sid": "pipelinebucketaccess",
+        "Effect": "Allow",
+        "Action": [
+          "s3:PutObject",
+          "s3:GetObject"
+        ],
+        "Resource": [
+          aws_s3_bucket.nlppipeline.arn,
+          "${aws_s3_bucket.nlppipeline.arn}/*"
+        ]
+      },
+      {
+        "Sid": "logging",
+        "Effect": "Allow",
+        "Action": [
+          "logs:PutLogEvents",
+          "logs:CreateLogStream"
+        ],
+        "Resource": [
+          "${aws_cloudwatch_log_stream.bootstrapper.arn}/*"
+        ]
+      }
+    ]
   })
 }
 
 
 resource "aws_codebuild_project" "nlpcodebuild" {
   name         = "codebuild-${local.full_name}"
-  service_role = aws_iam_role.codebuild.arn
+  service_role = aws_iam_role.imagebuilder.arn
   artifacts {
     type = "CODEPIPELINE"
   }
@@ -83,14 +106,82 @@ resource "aws_codebuild_project" "nlpcodebuild" {
     }
   }
 
+    logs_config {
+    cloudwatch_logs {
+      status = "ENABLED"
+      group_name = aws_cloudwatch_log_group.imagebuilder.name
+      stream_name = aws_cloudwatch_log_stream.imagebuilder.name
+    }
+  }
+
+
   source {
     type = "CODEPIPELINE"
     buildspec = "nlpapp/buildspec.yml"
   }
 }
 
-resource "aws_iam_role" "codebuild" {
-  name = "codebuild-role-${local.full_name}"
+resource "aws_iam_role_policy" "imagebuilder" {
+  role   = aws_iam_role.imagebuilder.name
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "pipelinebucketaccess",
+        "Effect": "Allow",
+        "Action": [
+          "s3:PutObject",
+          "s3:GetObject"
+        ],
+        "Resource": [
+          aws_s3_bucket.nlppipeline.arn,
+          "${aws_s3_bucket.nlppipeline.arn}/*"
+        ]
+      },
+      {
+        "Sid": "logging",
+        "Effect": "Allow",
+        "Action": [
+          "logs:PutLogEvents",
+          "logs:CreateLogStream"
+        ],
+        "Resource": [
+          "${aws_cloudwatch_log_stream.imagebuilder.arn}/*"
+        ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ecr:GetAuthorizationToken",
+          "ecr:DescribeRepositories"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ecr:DescribeImages",
+          "ecr:BatchGetImage",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:UploadLayerPart",
+          "ecr:PutImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:CompleteLayerUpload",
+          "ecr:BatchCheckLayerAvailability"
+        ],
+        "Resource" : [
+          data.terraform_remote_state.nlpappinfra.outputs.ecr_repo["arn"],
+          "arn:aws:ecr:us-east-1:166531731337:repository/python"
+        ]
+      }
+
+    ]
+  })
+}
+
+
+resource "aws_iam_role" "imagebuilder" {
+  name = "imagebuilder-role-${local.full_name}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -111,5 +202,5 @@ data "aws_iam_policy" "ECSPowerUser" {
 
 resource "aws_iam_role_policy_attachment" "ECSPowerUserRole" {
   policy_arn = data.aws_iam_policy.ECSPowerUser.arn
-  role       = aws_iam_role.codebuild.name
+  role       = aws_iam_role.imagebuilder.name
 }

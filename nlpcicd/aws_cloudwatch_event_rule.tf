@@ -2,28 +2,18 @@ resource "aws_cloudwatch_event_rule" "pipeline" {
   name          = "pipelinekickoff-${local.full_name}"
   event_pattern = jsonencode({
     "source" : [
-      "aws.s3"
+      "aws.codebuild"
     ],
     "detail-type" : [
-      "AWS API Call via CloudTrail"
+      "CodeBuild Build State Change"
     ],
     "detail" : {
-      "eventSource" : [
-        "s3.amazonaws.com"
+      "build-status": [
+        "SUCCEEDED"
       ],
-      "eventName" : [
-        "PutObject",
-        "CompleteMultipartUpload",
-        "CopyObject"
-      ],
-      "requestParameters" : {
-        "bucketName" : [
-          aws_s3_bucket.nlppipeline.bucket
-        ],
-        "key" : [
-          aws_codebuild_project.bootstrap.artifacts.0.name
-        ]
-      }
+      "project-name": [
+        "${aws_codebuild_project.bootstrap.name}"
+      ]
     }
   })
 }

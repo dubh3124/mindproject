@@ -1,4 +1,4 @@
-FROM python:3.9-alpine
+FROM 166531731337.dkr.ecr.us-east-1.amazonaws.com/python:3.9-alpine
 
 # Create a user
 RUN adduser -D nlpapp

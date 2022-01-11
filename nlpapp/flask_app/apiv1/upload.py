@@ -15,8 +15,6 @@ class Upload(Resource):
         bucket = 'nlpupload-nlpappp-dev'
         client = boto3.client('s3',
                               region_name='us-east-1')
-                              # aws_access_key_id="AKIASNRQQR6EV2ITNGN4",  # os.environ['ACCESS_KEY'],
-                              # aws_secret_access_key="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")  # os.environ['SECRET_KEY'])
         return jsonify(client.list_objects_v2(
             Bucket=bucket
         ))
@@ -30,8 +28,6 @@ class Upload(Resource):
 
             client = boto3.client('s3',
                                   region_name='us-east-1')
-                                  # aws_access_key_id="AKIASNRQQR6EV2ITNGN4",  # os.environ['ACCESS_KEY'],
-                                  # aws_secret_access_key="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")  # os.environ['SECRET_KEY'])
 
             # filename = secure_filename(
             #     image_file.filename)  # This is convenient to validate your filename, otherwise just use file.filename
