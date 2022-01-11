@@ -105,7 +105,7 @@ resource "aws_iam_role_policy" "pipeline-s3access" {
               "codedeploy:GetApplicationRevision",
               "codedeploy:RegisterApplicationRevision",
               "codedeploy:GetDeploymentConfig",
-              "ecs:RegisterTaskDefinition"
+              "ecs:*"
           ],
           "Resource": "*",
           "Effect": "Allow"
