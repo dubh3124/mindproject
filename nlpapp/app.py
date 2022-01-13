@@ -1,5 +1,5 @@
 import os
-from flask_app import create_app, script
+from flask_app import create_app
 
 app = create_app(os.getenv("FLASK_ENV"))
-script.register(app)
+

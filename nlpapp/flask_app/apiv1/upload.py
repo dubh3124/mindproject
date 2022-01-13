@@ -1,43 +1,47 @@
-from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_csrf_token, current_user
+from flask import Blueprint, jsonify, request, Response
 from flask_restx import Api, Resource, Namespace
 import boto3
 import logging
-from werkzeug.datastructures import FileStorage
+import base64
+import os
 
 log = logging.getLogger(__name__)
-uploadapi = Namespace('upload', description='Upload API')
+devicesapi = Namespace('devices', description='Devices API')
 
-@uploadapi.route('/')
-class Upload(Resource):
-    # @jwt_required
+@devicesapi.route('/')
+class Devices(Resource):
     def get(self):
         bucket = 'nlpupload-nlpappp-dev'
         client = boto3.client('s3',
                               region_name='us-east-1')
-        return jsonify(client.list_objects_v2(
-            Bucket=bucket
-        ))
+        resp = client.list_objects_v2(Bucket=bucket)
 
-    # @jwt_required
-    def post(self):
+        return jsonify({"TelemetryDataDownloads": [obj["Key"] for obj in resp["Contents"]]})
+
+@devicesapi.route('/<string:deviceid>')
+class Devices(Resource):
+    def get(self, deviceid):
         try:
-            bucket = 'nlpupload-nlpappp-dev'
-            content_type = request.mimetype
-            image_file = request.files['file']
+            bucket = os.environ["S3_UPLOAD_BUCKET"]
+            client = boto3.client('s3',region_name='us-east-1')
+            obj = client.get_object(Bucket=bucket, Key=deviceid)
+            return Response(base64.b64encode(obj['Body'].read()), mimetype="application/octet-stream")
+        except Exception:
+            log.exception(f"Error Getting file for Device ID - {deviceid}")
+
+    def put(self, deviceid):
+        try:
+            bucket = os.environ["S3_UPLOAD_BUCKET"] #'nlpupload-nlpappp-dev'
+            device_file = request.files['file']
 
             client = boto3.client('s3',
                                   region_name='us-east-1')
 
-            # filename = secure_filename(
-            #     image_file.filename)  # This is convenient to validate your filename, otherwise just use file.filename
-
-            client.put_object(Body=image_file,
+            client.put_object(Body=device_file,
                               Bucket=bucket,
-                              Key=image_file.filename,
-                              ContentType=content_type)
+                              Key=deviceid)
 
-            return {'message': 'File Uploaded'}
+            return {'message': f'File uploaded for Device ID - {deviceid}'}
         except Exception:
             log.exception("Oops!")
-            return {'message': "Oops!"}
+            return {'message': f"Error Uploading file for Device ID- {deviceid}"}

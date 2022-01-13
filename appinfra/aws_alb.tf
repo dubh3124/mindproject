@@ -4,6 +4,7 @@ resource "aws_lb_target_group" "nlpapptg" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = data.terraform_remote_state.nlpnetwork.outputs.vpcid
+  deregistration_delay = 10
 
   health_check {
     enabled = true

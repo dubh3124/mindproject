@@ -17,20 +17,10 @@ def create_app(config_name):
         datefmt="%Y%m%d-%H:%M%p",
     )
 
-    # from flask_app.apiv1.auth import jwt
-
-    # jwt.init_app(app)
-
     # CORS
     from flask_cors import CORS
 
     CORS(app, supports_credentials=True)
-
-    # # MongoEngine
-    # from flask_app.db_init import db
-
-    # app.db = db
-    # app.db.init_app(app)
 
     # Business Logic
     # http://flask.pocoo.org/docs/patterns/packages/
@@ -38,11 +28,5 @@ def create_app(config_name):
     from flask_app.apiv1 import api1
 
     app.register_blueprint(api1)
-
-    # from flask_app.script import resetdb, populatedb
-    # # Click Commands
-    # app.cli
-    # app.cli.add_command(resetdb)
-    # app.cli.add_command(populatedb)
 
     return app
