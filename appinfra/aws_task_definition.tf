@@ -15,6 +15,12 @@ resource "aws_ecs_task_definition" "nlptaskdef" {
         containerPort = local.api_port
         hostport = local.api_port
       }]
+      environment = [
+        {
+          name = "S3_UPLOAD_BUCKET"
+          value = aws_s3_bucket.nlpappupload.bucket
+        }
+      ]
       logConfiguration = {
         logDriver = "awslogs",
         options = {

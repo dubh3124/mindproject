@@ -31,7 +31,7 @@ class Devices(Resource):
 
     def put(self, deviceid):
         try:
-            bucket = os.environ["S3_UPLOAD_BUCKET"] #'nlpupload-nlpappp-dev'
+            bucket = os.environ["S3_UPLOAD_BUCKET"]
             device_file = request.files['file']
 
             client = boto3.client('s3',
