@@ -11,7 +11,7 @@ devicesapi = Namespace('devices', description='Devices API')
 @devicesapi.route('/')
 class Devices(Resource):
     def get(self):
-        bucket = 'nlpupload-nlpappp-dev'
+        bucket = os.environ["S3_UPLOAD_BUCKET"]
         client = boto3.client('s3',
                               region_name='us-east-1')
         resp = client.list_objects_v2(Bucket=bucket)
