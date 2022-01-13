@@ -14,4 +14,5 @@ resource "aws_ecs_service" "app" {
     security_groups = [aws_security_group.egress_all.id, aws_security_group.http.id, aws_security_group.ingress_api.id]
     subnets = data.terraform_remote_state.nlpnetwork.outputs.private-subnets
   }
+  depends_on = [aws_ecr_repository.ecr-nlpapp]
 }

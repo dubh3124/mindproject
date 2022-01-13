@@ -10,7 +10,7 @@ resource "aws_ecs_task_definition" "nlptaskdef" {
     {
       name = "nlpapp"
       essential = true
-      image = "166531731337.dkr.ecr.us-east-1.amazonaws.com/ecr-nlpappp-dev" #TODO: Variablize
+      image = aws_ecr_repository.ecr-nlpapp.repository_url
       portMappings = [{
         containerPort = local.api_port
         hostport = local.api_port
@@ -18,7 +18,7 @@ resource "aws_ecs_task_definition" "nlptaskdef" {
       logConfiguration = {
         logDriver = "awslogs",
         options = {
-          awslogs-region = "us-east-1",
+          awslogs-region = var.region
           awslogs-group = aws_cloudwatch_log_group.nlpapp.name
           awslogs-stream-prefix = "ecs"
         }

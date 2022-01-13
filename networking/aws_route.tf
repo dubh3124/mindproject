@@ -5,7 +5,6 @@ resource "aws_route" "internet_access" {
 }
 
 resource "aws_route" "private_ngw1" {
-  for_each = aws_subnet.private-subnets
   route_table_id         = aws_route_table.privateroute["private-subnet-a"].id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.pub1.id

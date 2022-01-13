@@ -10,7 +10,7 @@ init)
   ;;
 
 plan | apply | destroy)
-  terraform $ACTION -var-file=vars/$ENVIRONMENT.tfvars
+  terraform $ACTION -var-file=vars/$ENVIRONMENT.tfvars -auto-approve
   ;;
 
 *)

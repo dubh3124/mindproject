@@ -45,7 +45,8 @@ resource "aws_iam_role_policy" "s3access" {
         "s3:*",
       ],
       "Resource": [
-        aws_s3_bucket.nlpappupload.arn
+        aws_s3_bucket.nlpappupload.arn,
+        "${aws_s3_bucket.nlpappupload.arn}/*"
       ]
     }]
   })
