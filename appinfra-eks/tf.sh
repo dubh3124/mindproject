@@ -14,7 +14,7 @@ plan)
   ;;
 
 apply | destroy)
-  rm -rf .terraform/; terraform init -var-file=vars/$ENVIRONMENT.tfvars -backend-config=backends/$ENVIRONMENT.backend; terraform $ACTION -var-file=vars/$ENVIRONMENT.tfvars -auto-approve
+ terraform init -var-file=vars/$ENVIRONMENT.tfvars -backend-config=backends/$ENVIRONMENT.backend; terraform $ACTION -var-file=vars/$ENVIRONMENT.tfvars -auto-approve
   ;;
 
 *)

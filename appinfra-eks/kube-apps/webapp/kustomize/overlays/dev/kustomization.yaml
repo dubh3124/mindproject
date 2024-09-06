@@ -1,0 +1,16 @@
+bases:
+- ../../base
+
+namespace: nlpapp-dev
+# namePrefix: kus
+
+patches:
+- path: ./replicas.yaml
+- path: ./service.yaml
+  target:
+    kind: Service
+    name: nlpapp
+
+configMapGenerator:
+- name: configmap
+  env: config.properties

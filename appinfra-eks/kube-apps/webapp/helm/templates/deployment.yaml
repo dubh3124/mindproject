@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "deployment-{{ .Values.appname }}"
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.appname }}
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: {{ .Values.appname }}
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appname }}
+        tier: frontend
+    spec: # Pod spec
+      containers:
+      - name: mycontainer
+        image: registry-1.docker.io/dubh3124/kubenix:latest
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - configMapRef:
+            name: myconfigmapv1.0
+        resources:
+          requests:
+            memory: "16Mi" 
+            cpu: "50m"    # 50 milli cores (1/20 CPU)
+          limits:
+            memory: "128Mi" # 128 mebibytes 
+            cpu: "100m"
+      imagePullSecrets:
+      - name: regcred

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlpapp-deploy
+  namespace: nlpapp
+spec:
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: nlpapp
+        tier: frontend
+    spec: # Pod spec
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: nlpapp
+
+      containers:
+      - name: mycontainer
+        image: registry-1.docker.io/dubh3124/kubenix:latest
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - configMapRef:
+            name: configmap
+        resources:
+          requests:
+            memory: "16Mi" 
+            cpu: "50m"    # 50 milli cores (1/20 CPU)
+          limits:
+            memory: "128Mi" # 128 mebibytes 
+            cpu: "100m"
+      imagePullSecrets:
+      - name: regcred

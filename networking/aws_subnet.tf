@@ -6,6 +6,8 @@ resource "aws_subnet" "public-subnets" {
   vpc_id     = aws_vpc.nlvpc.id
   tags = {
     Name = each.value.name
+    "kubernetes.io/role/elb" = "1"
+    "kubernetes.io/cluster/test-eks-cluster"  =  "shared"
   }
 }
 
@@ -16,5 +18,7 @@ resource "aws_subnet" "private-subnets" {
   vpc_id     = aws_vpc.nlvpc.id
   tags = {
     Name = each.value.name
+    "kubernetes.io/role/internal-elb" = "1"
+    "kubernetes.io/cluster/test-eks-cluster"  =  "shared"
   }
 }

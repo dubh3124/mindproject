@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.appname }}
+  namespace: {{ .Values.namespace }}  # Assuming your application is in the 'default' namespace
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing  # Public ALB
+    alb.ingress.kubernetes.io/target-type: ip  # Route traffic directly to pod IPs
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'  # ALB listening on HTTP and HTTPS
+    alb.ingress.kubernetes.io/healthcheck-path: /api
+    alb.ingress.kubernetes.io/success-codes: 200-300
+
+    # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'  # ALB listening on HTTP and HTTPS
+    # alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:region:account-id:certificate/certificate-id  # Replace with your ACM certificate ARN for SSL
+    # alb.ingress.kubernetes.io/ssl-redirect: '443'  # Redirect HTTP to HTTPS
+    # alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=60  # Optional: Customize ALB attributes
+    # alb.ingress.kubernetes.io/success-codes: "200,302"  # Expected success codes for health checks
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.appname }}  # Replace with your Kubernetes service name
+                port:
+                  number: 5000  # Replace with the service port your app listens on
+  # tls:
+  #   - hosts:
+  #       - your-domain.com  # Replace with your domain name
+  #     secretName: tls-secret  # Kubernetes secret for TLS (certificate and key)

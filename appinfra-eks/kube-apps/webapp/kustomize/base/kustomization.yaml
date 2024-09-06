@@ -1,0 +1,7 @@
+resources:
+- deployment.yaml
+- service.yaml
+
+commonLabels:
+  app: nlpapp
+  tier: frontend

@@ -8,7 +8,7 @@ unset filepath
 unset id
 unset url
 
-tfdirs="networking appinfra nlpcicd"
+tfdirs="networking appinfra-eks"
 
 
 Help(){
@@ -112,15 +112,15 @@ main(){
 
   if [ $action == "create" ]; then
     create
-    pushd "appinfra" > /dev/null && url="$(terraform output -json | jq -r '.alb_url.value'):5000/api"  && popd > /dev/null
-    until $(curl --output /dev/null --silent --head --fail $url); do
-      echo "Waiting for $url to be available"
-      sleep 5
-    done
+    # pushd "appinfra" > /dev/null && url="$(terraform output -json | jq -r '.alb_url.value'):5000/api"  && popd > /dev/null
+    # until $(curl --output /dev/null --silent --head --fail $url); do
+    #   echo "Waiting for $url to be available"
+    #   sleep 5
+    # done
 
-    tests "$id" "$filepath"
+    # tests "$id" "$filepath"
 
-    echo "Swagger API interface available at $url"
+    # echo "Swagger API interface available at $url"
 
   elif [ $action == "destroy" ]; then
     destroy

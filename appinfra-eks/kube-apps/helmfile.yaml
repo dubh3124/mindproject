@@ -1,0 +1,89 @@
+# helmfile.yaml
+helmDefaults:
+  atomic: true
+  cleanupOnFail: true
+  timeout: 600
+
+repositories:
+  # - name: external-secrets
+  #   url: https://charts.external-secrets.io
+  - name: argo
+    url: https://argoproj.github.io/argo-helm
+  - name: eks
+    url: https://aws.github.io/eks-charts
+releases:
+  # - name: external-secrets
+  #   namespace: kube-system
+  #   chart: external-secrets/kubernetes-external-secrets
+  #   version: 8.6.0
+  #   values:
+  #     - name: external-secrets
+  #       env:
+  #         - name: AWS_REGION
+  #           value: us-west-2
+  #         - name: AWS_ACCESS_KEY_ID
+  #           valueFrom:
+  #             secretKeyRef:
+  #               name: aws-secrets-manager
+  #               key: access_key
+  #         - name: AWS_SECRET_ACCESS_KEY
+  #           valueFrom:
+  #             secretKeyRef:
+  #               name: aws-secrets-manager
+  #               key: secret_key
+
+  - name: argo-cd
+    namespace: argocd
+    chart: argo/argo-cd
+    version: 5.23.1
+    values:
+      - server:
+          service:
+            type: LoadBalancer
+        # configs:
+          # secret:
+          #   argocdServerAdminPassword: $apr1$ol2zcg8k$tu1HPQxhMcFOK5nC5hohu.  # Replace with a bcrypt hashed password
+      - dex:
+          enabled: false
+      - controller:
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 250m
+              memory: 128Mi
+      - redis:
+          enabled: true
+          master:
+            persistence:
+              enabled: false
+      - repoServer:
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 250m
+              memory: 128Mi
+
+  - name: aws-load-balancer-controller
+    namespace: kube-system
+    chart: eks/aws-load-balancer-controller
+    values:
+      - clusterName: test-eks-cluster
+        autoDiscoverAwsRegion: true
+        autoDiscoverAwsVpcID: true
+        rbac:
+          create: true
+        serviceAccount:
+          create: true
+          name: aws-load-balancer-controller
+        # tolerations:
+        #   - key: "node-role.kubernetes.io/master"
+        #     operator: "Exists"
+        #     effect: "NoSchedule"
+        # extraArgs:
+        #   - --publish-service=alb/ingress-nginx-controller
+        #   - --ingress-class=alb
+

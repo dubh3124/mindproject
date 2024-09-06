@@ -1,4 +1,4 @@
 bucket = "nlp-terraform-state-bucket-usw2"
-key = "nlpnetwork.tfstate"
+key = "nlpappinfra.tfstate"
 region = "us-west-2"
 encrypt = true

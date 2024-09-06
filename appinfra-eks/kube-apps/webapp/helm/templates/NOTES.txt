@@ -1,0 +1,3 @@
+This is a {{ .Values.environment}} environment deployment!
+
+Website hosted at <URL>:5000/api
